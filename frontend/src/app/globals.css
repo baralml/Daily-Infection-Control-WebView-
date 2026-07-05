@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F8FAFC;
+  --foreground: #1E293B;
+  
+  --primary: #005F73;
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #0A9396;
+  --secondary-foreground: #FFFFFF;
+  
+  --accent: #94D2BD;
+  --accent-foreground: #1E293B;
+  
+  --surface: #FFFFFF;
+  --surface-foreground: #1E293B;
+  
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  
+  --success: #16A34A;
+  --warning: #F59E0B;
+  --danger: #DC2626;
+  --info: #2563EB;
+  
+  --border: #E2E8F0;
+  --hover: #F1F5F9;
+  
+  --radius-card: 12px;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  
+  --color-border: var(--border);
+  --color-hover: var(--hover);
+  
+  --radius-card: var(--radius-card);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom Notion/Atlassian Card Style */
+.card-notion {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+/* Input Fields */
+.input-notion {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--surface);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input-notion:focus {
+  border-color: var(--primary);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+.dark {
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  
+  --primary: #38BDF8;
+  --primary-foreground: #0F172A;
+  
+  --secondary: #0EA5E9;
+  --secondary-foreground: #FFFFFF;
+  
+  --accent: #7DD3FC;
+  --accent-foreground: #0F172A;
+  
+  --surface: #1E293B;
+  --surface-foreground: #F8FAFC;
+  
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  
+  --success: #22C55E;
+  --warning: #EAB308;
+  --danger: #EF4444;
+  --info: #3B82F6;
+  
+  --border: #334155;
+  --hover: #1E293B;
+}

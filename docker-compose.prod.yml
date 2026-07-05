@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: infctrl_db_prod
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: superproductionpassword987
+      POSTGRES_DB: infection_control
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d infection_control"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: infctrl_redis_prod
+    restart: always
+    volumes:
+      - redisdata_prod:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: infctrl_backend_prod
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:superproductionpassword987@db:5432/infection_control
+      - REDIS_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=s3.amazonaws.com
+      - MINIO_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
+      - MINIO_SECRET_KEY=${AWS_SECRET_ACCESS_KEY}
+      - MINIO_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+      - MINIO_SECURE=True
+      - JWT_SECRET=${JWT_SECRET_PROD}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=15
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: infctrl_celery_prod
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:superproductionpassword987@db:5432/infection_control
+      - REDIS_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=s3.amazonaws.com
+      - MINIO_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
+      - MINIO_SECRET_KEY=${AWS_SECRET_ACCESS_KEY}
+      - MINIO_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+      - MINIO_SECURE=True
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: celery -A app.services.worker.celery worker --loglevel=info
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: infctrl_frontend_prod
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=/api/v1
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    container_name: infctrl_nginx_prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    restart: always
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  pgdata_prod:
+  redisdata_prod:
