@@ -1,21 +1,25 @@
+import bcrypt
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union
 from jose import jwt
-from passlib.context import CryptContext
 from app.core.config import settings
-
-# Setup password context (using bcrypt and argon2 for compatibility)
-pwd_context = CryptContext(schemes=["bcrypt", "argon2"], deprecated="auto")
 
 ALGORITHM = "HS256"
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifies a plain text password against its hashed version."""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"),
+            hashed_password.encode("utf-8")
+        )
+    except Exception:
+        return False
 
 def get_password_hash(password: str) -> str:
     """Generates a secure hash from a plain text password."""
-    return pwd_context.hash(password)
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
     """Generates a short-lived access JWT token."""
