@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     # CORS Origins
-    BACKEND_CORS_ORIGINS: List[str] = [
+    BACKEND_CORS_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:8000",
         "http://127.0.0.1:3000",
@@ -35,13 +35,15 @@ class Settings(BaseSettings):
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
-    def assemble_cors_origins(cls, v: Any) -> Union[List[str], str]:
+    def assemble_cors_origins(cls, v: Any) -> List[str]:
         if isinstance(v, str):
             if v.startswith("[") and v.endswith("]"):
                 import json
                 return json.loads(v)
             return [i.strip() for i in v.split(",") if i.strip()]
-        return v
+        elif isinstance(v, list):
+            return v
+        return [str(v)]
 
     model_config = SettingsConfigDict(
         env_file=".env",
